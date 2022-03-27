@@ -1,7 +1,7 @@
 from typing import Sequence, Union, Type
 import numpy as np
 from geometry import SO3, SE3
-from pysignals import LinearInterpolator
+from pysignals import SO3Signal, SE3Signal
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from mesh_plotter.meshes import MeshBase
@@ -17,11 +17,19 @@ class AnimatorBase(object):
     def __init__(self):
         self.fig = plt.figure()
         self.mesh_sequences: Sequence[MeshSequence] = []
-        self.mesh_interpolators: Sequence[LinearInterpolator] = []
+        self.mesh_signals: Sequence[Union[SO3Signal,SE3Signal]] = []
 
     def addMeshSequence(self, mesh : Type[MeshBase], transforms : Sequence[Union[SO3,SE3]], t : Sequence[float]):
         self.mesh_sequences.append(MeshSequence(mesh, transforms, t))
-        self.mesh_interpolators.append(LinearInterpolator(t, transforms))
+        signal = None
+        if isinstance(transforms[0], SO3):
+            signal = SO3Signal()
+        elif isinstance(transforms[0], SE3):
+            signal = SE3Signal()
+        else:
+            raise NotImplementedError
+        signal.update(t, transforms)
+        self.mesh_signals.append(signal)
 
     def animate(self, dt : float = 0.1):
         t_min = np.inf
@@ -37,10 +45,10 @@ class AnimatorBase(object):
         t_query = np.linspace(t_min, t_max, num_frames)
 
         interpolated_mesh_sequences = []
-        for mesh_sequence, mesh_interpolator in zip(self.mesh_sequences, self.mesh_interpolators):
+        for mesh_sequence, mesh_signal in zip(self.mesh_sequences, self.mesh_signals):
             new_transforms = []
             for i in range(num_frames):
-                new_transforms.append(mesh_interpolator.at(t_query[i]))
+                new_transforms.append(mesh_signal(t_query[i]))
             interpolated_mesh_sequences.append(MeshSequence(
                 mesh = mesh_sequence.mesh, 
                 transforms = new_transforms, 
