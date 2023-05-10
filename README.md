@@ -1,5 +1,7 @@
 # Mesh Plotter
 
+![example workflow](https://github.com/goromal/mesh-plotter/actions/workflows/test.yml/badge.svg)
+
 Tools for plotting transforms and JSON-defined mesh files in Python.
 
 **Under construction.**
