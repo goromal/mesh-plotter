@@ -1,7 +1,7 @@
 from typing import Sequence, Union, Type
 import numpy as np
-from geometry import SO3, SE3
-from pysignals import SO3Signal, SE3Signal
+from geometry import SO2, SE2, SO3, SE3
+from pysignals import SO2Signal, SE2Signal, SO3Signal, SE3Signal
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from mesh_plotter.meshes import MeshBase
@@ -17,7 +17,7 @@ class AnimatorBase(object):
     def __init__(self):
         self.fig = plt.figure()
         self.mesh_sequences: Sequence[MeshSequence] = []
-        self.mesh_signals: Sequence[Union[SO3Signal,SE3Signal]] = []
+        self.mesh_signals: Sequence[Union[SO2Signal,SE2Signal,SO3Signal,SE3Signal]] = []
 
     def addMeshSequence(self, mesh : Type[MeshBase], transforms : Sequence[Union[SO3,SE3]], t : Sequence[float]):
         self.mesh_sequences.append(MeshSequence(mesh, transforms, t))
@@ -26,6 +26,10 @@ class AnimatorBase(object):
             signal = SO3Signal()
         elif isinstance(transforms[0], SE3):
             signal = SE3Signal()
+        elif isinstance(transforms[0], SO2):
+            signal = SO2Signal()
+        elif isinstance(transforms[0], SE2):
+            signal = SE2Signal()
         else:
             raise NotImplementedError
         signal.update(t, transforms)
