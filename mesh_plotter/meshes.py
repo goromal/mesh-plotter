@@ -24,6 +24,21 @@ class MeshBase(object):
                 for point in line.points:
                     point *= scale
 
+class Axes2DMesh(MeshBase):
+    def __init__(self, scale : float = 1.0):
+        x_axis = Line(
+            points = [np.array([0., 0.]), np.array([1., 0.])],
+            color = "red",
+        )
+        y_axis = Line(
+            points = [np.array([0., 0.]), np.array([0., 1.])],
+            color = "green",
+        )
+        super(Axes2DMesh, self).__init__(
+            lines = [x_axis, y_axis],
+            scale = scale
+        )
+
 class Axes3DMesh(MeshBase):
     def __init__(self, scale : float = 1.0):
         x_axis = Line(
